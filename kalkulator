@@ -1,0 +1,58 @@
+using System;
+
+namespace KalkulatorZamowienia
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("=== KALKULATOR ZAMÓWIENIA ===");
+
+            Console.Write("Cena: ");
+            decimal cena = decimal.Parse(Console.ReadLine() ?? "0");
+
+            Console.Write("Rabat podstawowy (%): ");
+            int rabat = int.Parse(Console.ReadLine() ?? "0");
+
+            Console.Write("Klient Premium? (T/N): ");
+            bool premium = (Console.ReadLine() ?? "").Trim().ToUpper() == "T";
+
+            Console.Write("Weekend? (T/N): ");
+            bool weekend = (Console.ReadLine() ?? "").Trim().ToUpper() == "T";
+
+            try
+            {
+                decimal wynik = ObliczCene(cena, rabat, premium, weekend);
+                Console.WriteLine($"Cena końcowa: {wynik:0.00} zł");
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("BŁĄD DANYCH");
+            }
+        }
+
+        public static decimal ObliczCene(decimal cena, int rabat, bool premium, bool weekend)
+        {
+            // Walidacja danych
+            if (cena < 0)
+                throw new ArgumentException("Niepoprawna cena.");
+
+            if (rabat < 0 || rabat >= 30)
+                throw new ArgumentException("Niepoprawny rabat.");
+
+            int rabatCalkowity = rabat;
+
+            if (premium)
+                rabatCalkowity += 20;
+
+            if (weekend)
+                rabatCalkowity += 10;
+
+            if (rabatCalkowity > 45)
+                rabatCalkowity = 45;
+
+            decimal wynik = cena * (1 - rabatCalkowity / 100m);
+            return Math.Round(wynik, 2, MidpointRounding.AwayFromZero);
+        }
+    }
+}
